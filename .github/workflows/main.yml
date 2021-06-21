@@ -6,10 +6,25 @@ on:
       - master
 
 jobs:
-  build:
-    runs-on: ubuntu-latest                    # similar to "image" in GitLab
+  tflint:
+    runs-on: ubuntu-latest
     steps:
-      - run: echo "This is a build step"
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - uses: terraform-linters/setup-tflint@v1
+        name: Setup TFLint
+        with:
+          tflint_version: latest
+
+      - name: Run TFLint
+        run: tflint -f json aws > tflint-output.json
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: TFLint
+          path: tflint-output.json
+        if: always()                        # what is this for?
 
   test:
     runs-on: ubuntu-latest
